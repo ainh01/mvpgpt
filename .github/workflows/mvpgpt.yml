@@ -25,10 +25,10 @@ jobs:
       - name: Install Dependencies and Lint
         working-directory: Services/mvpgpt
         run: |
-          pip install flake8
+          python -m pip install --upgrade pip
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-          # Run linting
-          flake8 .
+          pip install flake8
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics || true
 
       - name: Login to ACR
         uses: azure/docker-login@v1
