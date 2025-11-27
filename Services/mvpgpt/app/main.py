@@ -11,14 +11,19 @@ from google.genai import types
 # --- Configuration ---
 WORKER_URL = "https://thirdmvpchatapworker.ainh.workers.dev"
 SESSION_ID = "global_chat_v1"
-API_KEY = os.getenv('EXTERNAL_API','2343432423432')
+API_KEY = os.getenv('EXTERNAL_API', '2343432423432')
 MODEL_NAME = "gemini-2.5-flash"
 
 # Initialize Client
 client = genai.Client(api_key=API_KEY)
 
 app = FastAPI()
-app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
+app.add_middleware(
+    CORSMiddleware, 
+    allow_origins=["*"], 
+    allow_methods=["*"], 
+    allow_headers=["*"]
+)
 
 # --- Client UI (HTML/JS) ---
 html = """
