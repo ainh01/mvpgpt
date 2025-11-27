@@ -17,7 +17,7 @@ spec:
       containers:
       - name: mvpgpt
         # The CI pipeline replaces this line automatically
-        image: myacr.azurecr.io/mvpgpt:latest
+        image: oraclehub.azurecr.io/mvpgpt:4508bbf9ccd7484845a7efe72a359fda6587cb7e
         ports:
         - containerPort: 8000
         env:
