@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mvpgpt
+  labels:
+    app: mvpgpt
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mvpgpt
+  template:
+    metadata:
+      labels:
+        app: mvpgpt
+    spec:
+      containers:
+      - name: mvpgpt
+        # The CI pipeline replaces this line automatically
+        image: myacr.azurecr.io/mvpgpt:latest
+        ports:
+        - containerPort: 8000
+        env:
+        - name: GOOGLE_API_KEY
+          value: "AIzaSyB1Wa0bH0zHV-smPVW4h0AxaEX2Dy6jIAE"
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "500m"

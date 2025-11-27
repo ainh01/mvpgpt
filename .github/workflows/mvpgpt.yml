@@ -1,0 +1,59 @@
+name: CI MVPGpt
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'Services/mvpgpt/**'
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install Dependencies and Lint
+        working-directory: Services/mvpgpt
+        run: |
+          pip install flake8
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          # Run linting
+          flake8 .
+
+      - name: Login to ACR
+        uses: azure/docker-login@v1
+        with:
+          login-server: ${{ secrets.ACR_SERVER }}
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
+
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: Services/mvpgpt
+          push: true
+          tags: ${{ secrets.ACR_SERVER }}/mvpgpt:${{ github.sha }}
+
+      - name: Update Kubernetes Manifest (GitOps)
+        run: |
+          # Configure Git
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # Update the image tag in deployment.yaml
+          sed -i 's|image: .*mvpgpt:.*|image: ${{ secrets.ACR_SERVER }}/mvpgpt:${{ github.sha }}|' k8s/applications/mvpgpt/deployment.yaml
+          
+          # Commit and Push
+          git add k8s/applications/mvpgpt/deployment.yaml
+          git diff --staged --quiet || git commit -m "Update mvpgpt image tag to ${{ github.sha }}"
+          git push
